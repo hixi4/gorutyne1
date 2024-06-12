@@ -9,7 +9,7 @@ import (
 
 func generateNumbers(ch chan<- int) {
 	for {
-		num := rand.Intn(100) // Генеруємо випадкове число від 0 до 99
+		num := rand.Intn(10) // Генеруємо випадкове число від 0 до 9
 		ch <- num
 		time.Sleep(time.Second) // Затримка для наочності
 	}
