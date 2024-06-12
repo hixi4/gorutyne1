@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
 func generateNumbers(ch chan<- int) {
 	for {
-		num := rand.Intn(10) // Генеруємо випадкове число від 0 до 99
+		num := rand.Intn(100) // Генеруємо випадкове число від 0 до 99
 		ch <- num
 		time.Sleep(time.Second) // Затримка для наочності
 	}
@@ -31,15 +32,25 @@ func printAverage(ch <-chan float64) {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	numCh := make(chan int)
 	avgCh := make(chan float64)
 
-	go generateNumbers(numCh)
-	go calculateAverage(numCh, avgCh)
-	go printAverage(avgCh)
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		generateNumbers(numCh)
+	}()
+	go func() {
+		defer wg.Done()
+		calculateAverage(numCh, avgCh)
+	}()
+	go func() {
+		defer wg.Done()
+		printAverage(avgCh)
+	}()
 
 	// Запобігаємо завершенню програми
-	select {}
+	wg.Wait()
 }
